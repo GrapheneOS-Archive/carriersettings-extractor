@@ -1,0 +1,8 @@
+apns-full-conf.xml
+CarrierSettings/*.pb
+tmp*/
+vendor.xml
+
+__pycache__/
+*.py[cod]
+*$py.class
