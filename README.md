@@ -18,7 +18,7 @@ Download a [Pixel factory image](https://developers.google.com/android/images) a
 
     DEVICE=crosshatch BUILD=QQ3A.200605.001 ./download_factory_img.sh
 
-Convert `CarrierSettings/*.pb` to `apns-full-conf.xml`.
+Convert `CarrierSettings/*.pb` to `apns-full-conf.xml` and `vendor.xml`.
 
     ./carriersettings_extractor.py CarrierSettings
 

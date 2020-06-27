@@ -3,7 +3,8 @@
 from glob import glob
 import os.path
 import sys
-import xml.etree.ElementTree as ET
+from xml.dom import minidom
+from xml.etree import ElementTree as ET
 from xml.sax.saxutils import escape, quoteattr
 
 from carriersettings_pb2 import CarrierList, CarrierSettings, \
@@ -116,6 +117,8 @@ class ApnElement:
         self.add_attribute('user_editable', 'userEditable')
 
 
+carrier_config_root = ET.Element('carrier_config_list')
+
 with open('apns-full-conf.xml', 'w') as f:
     f.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n\n')
     f.write('<apns version="8">\n\n')
@@ -129,7 +132,98 @@ with open('apns-full-conf.xml', 'w') as f:
                 f.write('      {}={}\n'.format(escape(key), quoteattr(value)))
             f.write('  />\n\n')
 
+        carrier_config_element = ET.SubElement(
+            carrier_config_root,
+            'carrier_config',
+        )
+        carrier_config_element.set('mcc', entry.carrierId.mccMnc[:3])
+        carrier_config_element.set('mnc', entry.carrierId.mccMnc[3:])
+        for field in ['spn', 'imsi', 'gid1', 'gid2']:
+            if entry.carrierId.HasField(field):
+                carrier_config_element.set(
+                    field,
+                    getattr(entry.carrierId, field),
+                )
+        for config in setting.configs.config:
+            value_type = config.WhichOneof('value')
+            if value_type == 'textValue':
+                carrier_config_subelement = ET.SubElement(
+                    carrier_config_element,
+                    'string',
+                )
+                carrier_config_subelement.set('name', config.key)
+                carrier_config_subelement.text = getattr(config, value_type)
+            elif value_type == 'intValue':
+                carrier_config_subelement = ET.SubElement(
+                    carrier_config_element,
+                    'int',
+                )
+                carrier_config_subelement.set('name', config.key)
+                carrier_config_subelement.set(
+                    'value',
+                    str(getattr(config, value_type)),
+                )
+            elif value_type == 'longValue':
+                carrier_config_subelement = ET.SubElement(
+                    carrier_config_element,
+                    'long',
+                )
+                carrier_config_subelement.set('name', config.key)
+                carrier_config_subelement.set(
+                    'value',
+                    str(getattr(config, value_type)),
+                )
+            elif value_type == 'boolValue':
+                carrier_config_subelement = ET.SubElement(
+                    carrier_config_element,
+                    'boolean',
+                )
+                carrier_config_subelement.set('name', config.key)
+                carrier_config_subelement.set(
+                    'value',
+                    str(getattr(config, value_type)).lower(),
+                )
+            elif value_type == 'textArray':
+                carrier_config_subelement = ET.SubElement(
+                    carrier_config_element,
+                    'string-array',
+                )
+                carrier_config_subelement.set('name', config.key)
+                carrier_config_subelement.set(
+                    'num',
+                    str(len(getattr(config, value_type).item)),
+                )
+                for value in getattr(config, value_type).item:
+                    carrier_config_item = ET.SubElement(
+                        carrier_config_subelement,
+                        'item',
+                    )
+                    carrier_config_item.set('value', value)
+            elif value_type == 'intArray':
+                carrier_config_subelement = ET.SubElement(
+                    carrier_config_element,
+                    'int-array',
+                )
+                carrier_config_subelement.set('name', config.key)
+                carrier_config_subelement.set(
+                    'num',
+                    str(len(getattr(config, value_type).item)),
+                )
+                for value in getattr(config, value_type).item:
+                    carrier_config_item = ET.SubElement(
+                        carrier_config_subelement,
+                        'item',
+                    )
+                    carrier_config_item.set('value', str(value))
+            else:
+                raise TypeError("Unknown value type: {}".format(value_type))
+
     f.write('</apns>\n')
+
+dom = minidom.parseString(ET.tostring(carrier_config_root))
+with open('vendor.xml', 'w') as f:
+    f.write(dom.toprettyxml(indent='    '))
 
 # Test XML parsing.
 ET.parse('apns-full-conf.xml')
+ET.parse('vendor.xml')
