@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from glob import glob
+from itertools import product
 import os.path
 import sys
 from xml.dom import minidom
@@ -9,8 +10,26 @@ from xml.sax.saxutils import escape, quoteattr
 
 from carriersettings_pb2 import CarrierList, CarrierSettings, \
     MultiCarrierSettings
+from vendor.carrierId_pb2 import CarrierList as CarrierIdList
 
 pb_path = sys.argv[1]
+
+carrier_id_list = CarrierIdList()
+carrier_attribute_map = {}
+with open('carrier_list.pb', 'rb') as pb:
+    carrier_id_list.ParseFromString(pb.read())
+for carrier_id_obj in carrier_id_list.carrier_id:
+    for carrier_attribute in carrier_id_obj.carrier_attribute:
+        for carrier_attributes in product(*(
+            (s.lower() for s in getattr(carrier_attribute, i) or [''])
+            for i in [
+                'mccmnc_tuple', 'imsi_prefix_xpattern', 'spn', 'plmn',
+                'gid1', 'gid2', 'preferred_apn', 'iccid_prefix',
+                'privilege_access_rule',
+            ]
+        )):
+            carrier_attribute_map[carrier_attributes] = \
+                carrier_id_obj.canonical_id
 
 carrier_list = CarrierList()
 all_settings = {}
@@ -29,6 +48,7 @@ for filename in glob(os.path.join(pb_path, '*.pb')):
             setting.ParseFromString(pb.read())
             assert setting.canonicalName not in all_settings
             all_settings[setting.canonicalName] = setting
+
 
 # Unfortunately, python processors like xml and lxml, as well as command-line
 # utilities like tidy, do not support the exact style used by AOSP for
@@ -69,6 +89,23 @@ class ApnElement:
                         enum_type.values_by_number[value].name
 
     def add_attributes(self):
+        try:
+            self.add_attribute(
+                'carrier_id',
+                value=str(carrier_attribute_map[(
+                    self.carrier_id.mccMnc,
+                    self.carrier_id.imsi,
+                    self.carrier_id.spn.lower(),
+                    '',
+                    self.carrier_id.gid1.lower(),
+                    self.carrier_id.gid2.lower(),
+                    '',
+                    '',
+                    '',
+                )])
+            )
+        except KeyError:
+            pass
         self.add_attribute('mcc', value=self.carrier_id.mccMnc[:3])
         self.add_attribute('mnc', value=self.carrier_id.mccMnc[3:])
         self.add_attribute('apn', 'value')

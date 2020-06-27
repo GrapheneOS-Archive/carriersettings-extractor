@@ -14,6 +14,10 @@ This script converts the CarrierSettings protobuf files (e.g., `carrier_list.pb`
 
 ## Usage
 
+Download the [carrier ID database](https://source.android.com/devices/tech/config/carrierid) from AOSP.
+
+    ./download_carrier_list.sh
+
 Download a [Pixel factory image](https://developers.google.com/android/images) and extract the CarrierSettings protobuf files. This script will download android-prepare-vendor and copy the directory `CarrierSettings` containing the protobuf files.
 
     DEVICE=crosshatch BUILD=QQ3A.200605.001 ./download_factory_img.sh
