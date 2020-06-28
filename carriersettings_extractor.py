@@ -5,7 +5,6 @@ from glob import glob
 from itertools import product
 import os.path
 import sys
-from xml.dom import minidom
 from xml.etree import ElementTree as ET
 from xml.sax.saxutils import escape, quoteattr
 
@@ -155,6 +154,23 @@ class ApnElement:
         self.add_attribute('user_editable', 'userEditable')
 
 
+def indent(elem, level=0):
+    """Based on https://effbot.org/zone/element-lib.htm#prettyprint"""
+    i = "\n" + level * "    "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "    "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            indent(elem, level + 1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+
+
 carrier_config_root = ET.Element('carrier_config_list')
 
 with open('apns-full-conf.xml', 'w') as f:
@@ -258,9 +274,9 @@ with open('apns-full-conf.xml', 'w') as f:
 
     f.write('</apns>\n')
 
-dom = minidom.parseString(ET.tostring(carrier_config_root))
-with open('vendor.xml', 'w') as f:
-    f.write(dom.toprettyxml(indent='    '))
+indent(carrier_config_root)
+carrier_config_tree = ET.ElementTree(carrier_config_root)
+carrier_config_tree.write('vendor.xml', encoding='utf-8', xml_declaration=True)
 
 # Test XML parsing.
 ET.parse('apns-full-conf.xml')
