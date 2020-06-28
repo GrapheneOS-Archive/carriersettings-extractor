@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from collections import OrderedDict
 from glob import glob
 from itertools import product
 import os.path
@@ -67,7 +68,7 @@ class ApnElement:
     def __init__(self, apn, carrier_id):
         self.apn = apn
         self.carrier_id = carrier_id
-        self.attributes = {}
+        self.attributes = OrderedDict()
         self.add_attributes()
 
     def add_attribute(self, key, field=None, value=None):
