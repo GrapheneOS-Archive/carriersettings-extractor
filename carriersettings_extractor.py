@@ -173,7 +173,7 @@ def indent(elem, level=0):
 
 carrier_config_root = ET.Element('carrier_config_list')
 
-with open('apns-full-conf.xml', 'w') as f:
+with open('apns-full-conf.xml', 'w', encoding='utf-8') as f:
     f.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n\n')
     f.write('<apns version="8">\n\n')
 
