@@ -4,6 +4,8 @@ Android Open Source Project (AOSP) [includes](https://source.android.com/devices
 
 This script converts the CarrierSettings protobuf files (e.g., `carrier_list.pb`, `others.pb`) to XML format compatible with AOSP. This may be helpful for Android-based systems that do not bundle CarrierSettings, but wish to support carriers that are not included in AOSP.
 
+For a description of each APN and carrier setting, refer to the doc comments in [`Telephony.java`](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/provider/Telephony.java) and [`CarrierConfigManager.java`](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/telephony/java/android/telephony/CarrierConfigManager.java), respectively.
+
 ## Dependencies
 
  * e2fsprogs (debugfs) - required, for android-prepare-vendor
