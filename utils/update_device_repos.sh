@@ -5,10 +5,10 @@ set -euo pipefail
 [ -f carrier_list.pb ] || ./download_carrier_list.sh
 
 for DEVICE in walleye taimen crosshatch bonito coral; do
-  if [ "$DEVICE" = bonito ]; then
-    BUILD=QQ3A.200605.002
+  if [ "$DEVICE" = sunfish ]; then
+    BUILD=RP1A.200720.011
   else
-    BUILD=QQ3A.200605.001
+    BUILD=RP1A.200720.009
   fi
 
   if [ "$DEVICE" = walleye ]; then
@@ -28,7 +28,7 @@ for DEVICE in walleye taimen crosshatch bonito coral; do
     cd "$repo_dir"
     git checkout -b apns 2> /dev/null || git checkout apns
     git fetch origin
-    git reset origin/10
+    git reset origin/11
     git add apns-full-conf.xml '*.mk'
     git commit -m "Include APNs from CarrierSettings
 
