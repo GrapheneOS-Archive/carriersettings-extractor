@@ -9,10 +9,10 @@ For a description of each APN and carrier setting, refer to the doc comments in 
 ## Dependencies
 
  * e2fsprogs (debugfs) - required, for android-prepare-vendor
+ * git - required, for android-prepare-vendor
  * protobuf-compiler (protoc) - optional, see below
  * python3-protobuf - required
- * unzip - required, for android-prepare-vendor
- * wget - required, for android-prepare-vendor
+ * wget - required, for downloading `carrier_list.pb`
 
 ## Usage
 
