@@ -26,7 +26,14 @@ unwanted_configs = ["carrier_app_wake_signal_config",
                     "ci_action_on_sys_update_bool",
                     "ci_action_on_sys_update_extra_string",
                     "ci_action_on_sys_update_extra_val_string",
-                    "ci_action_on_sys_update_intent_string"]
+                    "ci_action_on_sys_update_intent_string",
+                    "allow_adding_apns_bool",
+                    "apn_expand_bool",
+                    "hide_ims_apn_bool",
+                    "hide_preset_apn_details_bool",
+                    "read_only_apn_fields_string_array",
+                    "read_only_apn_types_string_array",
+                    "show_apn_setting_cdma_bool"]
 
 carrier_id_list = CarrierIdList()
 carrier_attribute_map = {}
