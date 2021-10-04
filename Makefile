@@ -9,6 +9,6 @@ clean:
 	protoc --python_out=. $<
 
 vendor/carrierId.proto:
-	wget -qO- \
+	curl \
 	https://android.googlesource.com/platform/frameworks/opt/telephony/+/refs/heads/master/proto/src/carrierId.proto?format=TEXT | \
 	base64 --decode > $@
