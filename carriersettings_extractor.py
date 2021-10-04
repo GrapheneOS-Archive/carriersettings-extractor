@@ -41,7 +41,12 @@ for filename in glob(os.path.join(pb_path, '*.pb')):
             settings = MultiCarrierSettings()
             settings.ParseFromString(pb.read())
             for setting in settings.setting:
-                assert setting.canonicalName not in all_settings
+                if setting.canonicalName in all_settings:
+                    # Some carriers may have their own config files, as well as
+                    # a duplicate copy in others.pb. Prefer the dedicated
+                    # config if this is the case.
+                    continue
+
                 all_settings[setting.canonicalName] = setting
         else:
             setting = CarrierSettings()
