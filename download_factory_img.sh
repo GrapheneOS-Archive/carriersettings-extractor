@@ -14,6 +14,5 @@ factory_image="$(find "$TMPDIR" -iname "*$DEVICE*$BUILD-factory*.tgz" -or \
 PATH="$PATH:/sbin:${TMPDIR}/android-prepare-vendor-11/hostTools/$(uname -s)/bin" \
   "${TMPDIR}/android-prepare-vendor-11/scripts/extract-factory-images.sh" \
   --input "$factory_image" --output "$TMPDIR" \
-  --conf-file "${TMPDIR}/android-prepare-vendor-11/${DEVICE}/config.json" \
-  --debugfs
+  --conf-file "${TMPDIR}/android-prepare-vendor-11/${DEVICE}/config.json"
 mv "$(dirname "$(find "${TMPDIR}" -name carrier_list.pb | head -1)")" .
