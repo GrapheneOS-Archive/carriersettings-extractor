@@ -6,7 +6,7 @@ TMPDIR="$(mktemp -d "${TMPDIR:-tmp}.XXXXXX")"
 trap "rm -rf '${TMPDIR}'" EXIT
 export TMPDIR
 
-git clone https://github.com/GrapheneOS/android-prepare-vendor --branch=11 ${TMPDIR}/android-prepare-vendor-11 --depth=1 --single-branch
+git clone https://github.com/GrapheneOS/android-prepare-vendor --branch=12 ${TMPDIR}/android-prepare-vendor-11 --depth=1 --single-branch
 "${TMPDIR}/android-prepare-vendor-11/scripts/download-nexus-image.sh" \
   --device "$DEVICE" --buildID "$BUILD" --output "$TMPDIR" --yes
 factory_image="$(find "$TMPDIR" -iname "*$DEVICE*$BUILD-factory*.tgz" -or \
