@@ -178,7 +178,21 @@ unwanted_configs = ["carrier_app_wake_signal_config",
                     "enable_apps_string_array",
                     "gps.nfw_proxy_apps",
                     "smart_forwarding_config_component_name_string",
-                    "wfc_emergency_address_carrier_app_string"]
+                    "wfc_emergency_address_carrier_app_string",
+                    "ci_action_on_sys_update_bool",
+                    "ci_action_on_sys_update_extra_string",
+                    "ci_action_on_sys_update_extra_val_string",
+                    "ci_action_on_sys_update_intent_string",
+                    "allow_adding_apns_bool",
+                    "apn_expand_bool",
+                    "hide_ims_apn_bool",
+                    "hide_preset_apn_details_bool",
+                    "read_only_apn_fields_string_array",
+                    "read_only_apn_types_string_array",
+                    "show_apn_setting_cdma_bool",
+                    "carrier_provisioning_app_string",
+                    "hide_enable_2g_bool",
+                    "com.google.android.dialer.display_wifi_calling_button_bool"]
 
 
 carrier_config_root = ET.Element('carrier_config_list')
