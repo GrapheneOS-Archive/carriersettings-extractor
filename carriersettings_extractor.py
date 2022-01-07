@@ -16,7 +16,7 @@ pb_path = sys.argv[1]
 
 carrier_id_list = CarrierIdList()
 carrier_attribute_map = {}
-with open('carrier_list.pb', 'rb') as pb:
+with open((os.path.join(pb_path, 'carrier_list.pb')), 'rb') as pb:
     carrier_id_list.ParseFromString(pb.read())
 for carrier_id_obj in carrier_id_list.carrier_id:
     for carrier_attribute in carrier_id_obj.carrier_attribute:
