@@ -196,6 +196,10 @@ unwanted_configs = ["carrier_app_wake_signal_config",
                     "hide_enable_2g_bool",
                     "com.google.android.dialer.display_wifi_calling_button_bool"]
 
+## TODO:
+# "carrier_app_wake_signal_config" is still valid on GrapheneOS but we need to implement code for removing "com.google.android.carriersetup" we don't ship it
+# "smart_forwarding_config_component_name_string" is still valid on Qualcomm Pixel devices but we don't currently ship xdivert
+# "wfc_emergency_address_carrier_app_string" is still valid on GrapheneOS but we need to replace the string to be "com.android.imsserviceentitlement/.WfcActivationActivity"
 
 carrier_config_root = ET.Element('carrier_config_list')
 
