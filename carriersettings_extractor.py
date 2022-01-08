@@ -330,6 +330,11 @@ carrier_config_mccmnc_aggregated = {}
 
 for lone_carrier_config in root_carrier_config_tree:
     # append mnc to mcc to form identifier used to lookup carrier XML in CarrierConfig app
+    if ("gid1" not in lone_carrier_config.attrib) and ("gid2" not in lone_carrier_config.attrib) and ("spn" not in lone_carrier_config.attrib) and ("imsi" not in lone_carrier_config.attrib):
+        front = True
+    else:
+        front = False
+
     mccmnc_combo = "carrier_config_mccmnc_" + lone_carrier_config.attrib["mcc"] + lone_carrier_config.attrib["mnc"] + ".xml"
 
     # handle multiple carrier configurations under the same mcc and mnc combination
@@ -337,7 +342,10 @@ for lone_carrier_config in root_carrier_config_tree:
         blank_list = []
         carrier_config_mccmnc_aggregated[mccmnc_combo] = blank_list
     temp_list = carrier_config_mccmnc_aggregated[mccmnc_combo]
-    temp_list.append(lone_carrier_config)
+    if front == True:
+        temp_list.insert(0,lone_carrier_config)
+    else:
+        temp_list.append(lone_carrier_config)
     carrier_config_mccmnc_aggregated[mccmnc_combo] = temp_list
 
 for configfile in carrier_config_mccmnc_aggregated:
@@ -353,3 +361,4 @@ for configfile in carrier_config_mccmnc_aggregated:
             test = str(test)
             f.write(test)
         f.write('</carrier_config_list>\n')
+        f.close()
