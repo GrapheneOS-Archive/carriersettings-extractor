@@ -348,17 +348,18 @@ for lone_carrier_config in root_carrier_config_tree:
         temp_list.append(lone_carrier_config)
     carrier_config_mccmnc_aggregated[mccmnc_combo] = temp_list
 
-for configfile in carrier_config_mccmnc_aggregated:
-    config_list = carrier_config_mccmnc_aggregated[configfile]
-    with open(configfile, 'w', encoding='utf-8') as f:
-        f.write('<?xml version="1.0" encoding="utf-8" standalone="yes"?>\n')
-        f.write('<carrier_config_list>\n')
+
+with open("vendor.xml", 'w', encoding='utf-8') as f:
+    f.write('<?xml version="1.0" encoding="utf-8" standalone="yes"?>\n')
+    f.write('<carrier_config_list>\n')
+    for configfile in carrier_config_mccmnc_aggregated:
+        config_list = carrier_config_mccmnc_aggregated[configfile]
         for config in config_list:
             config_tree =  ET.ElementTree(config)
             config_tree = config_tree.getroot()
             indent(config_tree)
-            test = ET.tostring(config_tree, encoding='unicode')
-            test = str(test)
-            f.write(test)
-        f.write('</carrier_config_list>\n')
-        f.close()
+            single_carrier_config = ET.tostring(config_tree, encoding='unicode')
+            single_carrier_config = str(single_carrier_config)
+            f.write(single_carrier_config)
+    f.write('</carrier_config_list>\n')
+    f.close()
