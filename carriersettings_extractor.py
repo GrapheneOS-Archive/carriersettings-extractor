@@ -318,8 +318,34 @@ with open('apns-full-conf.xml', 'w', encoding='utf-8') as f:
 
 indent(carrier_config_root)
 carrier_config_tree = ET.ElementTree(carrier_config_root)
-carrier_config_tree.write('vendor.xml', encoding='utf-8', xml_declaration=True)
+root_carrier_config_tree = carrier_config_tree.getroot()
 
-# Test XML parsing.
-ET.parse('apns-full-conf.xml')
-ET.parse('vendor.xml')
+# dict containing lookups for each mccmnc combo representing each file,
+# which contains a list of all configs which are dicts
+carrier_config_mccmnc_aggregated = {}
+
+for lone_carrier_config in root_carrier_config_tree:
+    # append mnc to mcc to form identifier used to lookup carrier XML in CarrierConfig app
+    mccmnc_combo = "carrier_config_mccmnc_" + lone_carrier_config.attrib["mcc"] + lone_carrier_config.attrib["mnc"] + ".xml"
+
+    # handle multiple carrier configurations under the same mcc and mnc combination
+    if mccmnc_combo not in carrier_config_mccmnc_aggregated:
+        blank_list = []
+        carrier_config_mccmnc_aggregated[mccmnc_combo] = blank_list
+    temp_list = carrier_config_mccmnc_aggregated[mccmnc_combo]
+    temp_list.append(lone_carrier_config)
+    carrier_config_mccmnc_aggregated[mccmnc_combo] = temp_list
+
+for configfile in carrier_config_mccmnc_aggregated:
+    config_list = carrier_config_mccmnc_aggregated[configfile]
+    with open(configfile, 'w', encoding='utf-8') as f:
+        f.write('<?xml version="1.0" encoding="utf-8" standalone="yes"?>\n')
+        f.write('<carrier_config_list>\n')
+        for config in config_list:
+            config_tree =  ET.ElementTree(config)
+            config_tree = config_tree.getroot()
+            indent(config_tree)
+            test = ET.tostring(config_tree, encoding='unicode')
+            test = str(test)
+            f.write(test)
+        f.write('</carrier_config_list>\n')
