@@ -14,9 +14,12 @@ from vendor.carrierId_pb2 import CarrierList as CarrierIdList
 
 pb_path = sys.argv[1]
 
+android_build_top = sys.argv[2]
+
+android_path_to_carrierid = "packages/providers/TelephonyProvider/assets/latest_carrier_id"
 carrier_id_list = CarrierIdList()
 carrier_attribute_map = {}
-with open('carrier_list.pb', 'rb') as pb:
+with open(os.path.join(android_build_top, android_path_to_carrierid, 'carrier_list.pb'), 'rb') as pb:
     carrier_id_list.ParseFromString(pb.read())
 for carrier_id_obj in carrier_id_list.carrier_id:
     for carrier_attribute in carrier_id_obj.carrier_attribute:
