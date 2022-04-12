@@ -1,9 +1,0 @@
-apns-full-conf.xml
-carrier_list.pb
-CarrierSettings/*.pb
-tmp*/
-vendor.xml
-
-__pycache__/
-*.py[cod]
-*$py.class
