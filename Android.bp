@@ -1,0 +1,32 @@
+python_binary_host {
+    name: "carriersettings_extractor",
+    defaults: ["carrier_extractor_defaults"],
+    srcs: [
+        "carriersettings_extractor.py",
+    ],
+    libs: [
+        "libprotobuf-python",
+        "carriersettings_extractor-proto",
+    ],
+}
+
+python_defaults {
+    name: "carrier_extractor_defaults",
+    version: {
+        py3: {
+            embedded_launcher: false,
+        },
+    },
+    host_supported: true,
+}
+
+python_library_host {
+    name: "carriersettings_extractor-proto",
+    defaults: ["carrier_extractor_defaults"],
+    srcs: [
+        "*.proto",
+    ],
+    proto: {
+        canonical_path_from_root: false,
+    },
+}

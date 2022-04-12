@@ -10,11 +10,15 @@ from xml.sax.saxutils import escape, quoteattr
 
 from carriersettings_pb2 import CarrierList, CarrierSettings, \
     MultiCarrierSettings
-from vendor.carrierId_pb2 import CarrierList as CarrierIdList
+from carrierId_pb2 import CarrierList as CarrierIdList
 
 pb_path = sys.argv[1]
 
 android_build_top = sys.argv[2]
+
+apn_out = sys.argv[3]
+
+cc_out = sys.argv[4]
 
 android_path_to_carrierid = "packages/providers/TelephonyProvider/assets/latest_carrier_id"
 carrier_id_list = CarrierIdList()
@@ -206,7 +210,7 @@ unwanted_configs = ["carrier_app_wake_signal_config",
 
 carrier_config_root = ET.Element('carrier_config_list')
 
-with open('apns-full-conf.xml', 'w', encoding='utf-8') as f:
+with open(apn_out, 'w', encoding='utf-8') as f:
     f.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n\n')
     f.write('<apns version="8">\n\n')
 
@@ -352,7 +356,7 @@ for lone_carrier_config in root_carrier_config_tree:
     carrier_config_mccmnc_aggregated[mccmnc_combo] = temp_list
 
 
-with open("vendor.xml", 'w', encoding='utf-8') as f:
+with open(cc_out, 'w', encoding='utf-8') as f:
     f.write('<?xml version="1.0" encoding="utf-8" standalone="yes"?>\n')
     f.write('<carrier_config_list>\n')
     for configfile in carrier_config_mccmnc_aggregated:
