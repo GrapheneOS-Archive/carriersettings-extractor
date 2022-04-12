@@ -30,3 +30,35 @@ python_library_host {
         canonical_path_from_root: false,
     },
 }
+
+genrule {
+    name: "carrier_extraction-apn",
+    tools: ["carriersettings_extractor"],
+    cmd: "$(location carriersettings_extractor) vendor/google_devices/$$TARGET_PRODUCT/proprietary/product/etc/CarrierSettings/ . $(genDir)/apns-conf.xml $(genDir)/carrierconfig-vendor.xml",
+    out: [
+        "apns-conf.xml",
+    ],
+}
+
+genrule {
+    name: "carrier_extraction-cc",
+    tools: ["carriersettings_extractor"],
+    cmd: "$(location carriersettings_extractor) vendor/google_devices/$$TARGET_PRODUCT/proprietary/product/etc/CarrierSettings/ . $(genDir)/apns-conf.xml $(genDir)/carrierconfig-vendor.xml",
+    out: [
+        "carrierconfig-vendor.xml",
+    ],
+}
+
+prebuilt_etc {
+    name: "extracted-apns",
+    filename: "apns-conf.xml",
+    product_specific: true,
+    src: ":carrier_extraction-apn",
+}
+
+prebuilt_etc {
+    name: "extracted-carrierconfig",
+    filename: "carrierconfig-vendor.xml",
+    product_specific: true,
+    src: ":carrier_extraction-cc",
+}
