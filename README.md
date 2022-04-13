@@ -14,3 +14,22 @@ This is a continuation of the https://github.com/daradib/carriersettings-extract
 ## Build
 
 ```m carriersettings_extractor```
+
+
+## Standalone usage
+
+```out/host/linux-x86/bin/carriersettings_extractor vendor/google_devices/<codename>/proprietary/product/etc/CarrierSettings/ /root/dir/of/aosp/tree/ /output/path/of/apns-conf.xml /output/path/of/carrierconfig-vendor.xml <codename>```
+
+For example, on the Pixel 6 (oriole) whilst in the root of the AOSP tree, you would run the below to produce apns-conf.xml and carrierconfig-vendor.xml in the root of your AOSP tree.
+
+```out/host/linux-x86/bin/carriersettings_extractor vendor/google_devices/oriole/proprietary/product/etc/CarrierSettings/ . apns-conf.xml carrierconfig-vendor.xml oriole```
+
+## Inline usage
+
+Add the below to the device.mk of a new Pixel device
+
+```
+PRODUCT_PACKAGES += \
+    extracted-carrierconfig \
+    extracted-apns
+```
