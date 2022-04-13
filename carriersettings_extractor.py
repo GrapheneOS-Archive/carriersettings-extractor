@@ -20,6 +20,8 @@ apn_out = sys.argv[3]
 
 cc_out = sys.argv[4]
 
+device = sys.argv[5]
+
 android_path_to_carrierid = "packages/providers/TelephonyProvider/assets/latest_carrier_id"
 carrier_id_list = CarrierIdList()
 carrier_attribute_map = {}
@@ -186,7 +188,6 @@ unwanted_configs = ["carrier_app_wake_signal_config",
                     "config_ims_package_override_string",
                     "enable_apps_string_array",
                     "gps.nfw_proxy_apps",
-                    "smart_forwarding_config_component_name_string",
                     "wfc_emergency_address_carrier_app_string",
                     "ci_action_on_sys_update_bool",
                     "ci_action_on_sys_update_extra_string",
@@ -203,10 +204,13 @@ unwanted_configs = ["carrier_app_wake_signal_config",
                     "hide_enable_2g_bool",
                     "com.google.android.dialer.display_wifi_calling_button_bool"]
 
+unwanted_configs_6thgen = ["smart_forwarding_config_component_name_string"]
+
+qualcomm_pixels = ["barbet","bramble","redfin","sunfish","coral","flame"]
+
 ## TODO:
-# "carrier_app_wake_signal_config" is still valid on GrapheneOS but we need to implement code for removing "com.google.android.carriersetup" we don't ship it
-# "smart_forwarding_config_component_name_string" is still valid on Qualcomm Pixel devices but we don't currently ship xdivert
-# "wfc_emergency_address_carrier_app_string" is still valid on GrapheneOS but we need to replace the string to be "com.android.imsserviceentitlement/.WfcActivationActivity"
+# "carrier_app_wake_signal_config" is still valid on GrapheneOS but we need to implement code for removing "com.google.android.carriersetup" as we don't ship it
+# "wfc_emergency_address_carrier_app_string" is still valid on GrapheneOS but we need to remove all values which are not "com.android.imsserviceentitlement/.WfcActivationActivity"
 
 carrier_config_root = ET.Element('carrier_config_list')
 
@@ -251,6 +255,8 @@ with open(apn_out, 'w', encoding='utf-8') as f:
 
         for config in setting.configs.config:
             if config.key in unwanted_configs:
+                continue
+            if (config.key in unwanted_configs_6thgen) and (device not in qualcomm_pixels): 
                 continue
             value_type = config.WhichOneof('value')
             if value_type == 'textValue':
