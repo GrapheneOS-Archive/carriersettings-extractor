@@ -206,7 +206,7 @@ unwanted_configs = ["carrier_app_wake_signal_config",
 
 unwanted_configs_6thgen = ["smart_forwarding_config_component_name_string"]
 
-qualcomm_pixels = ["barbet","bramble","redfin","sunfish","coral","flame"]
+qualcomm_pixels = ["crosshatch","blueline","sargo","bonito","barbet","bramble","redfin","sunfish","coral","flame"]
 
 ## TODO:
 # "carrier_app_wake_signal_config" is still valid on GrapheneOS but we need to implement code for removing "com.google.android.carriersetup" as we don't ship it
