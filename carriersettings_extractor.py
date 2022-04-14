@@ -373,6 +373,8 @@ with open(cc_out, 'w', encoding='utf-8') as f:
             indent(config_tree)
             single_carrier_config = ET.tostring(config_tree, encoding='unicode')
             single_carrier_config = str(single_carrier_config)
+            # workaround for converting wrongfully made no sim config to global defaults for device config
+            single_carrier_config = single_carrier_config.replace(' mcc="000" mnc="000"', '')
             f.write(single_carrier_config)
     f.write('</carrier_config_list>\n')
     f.close()
