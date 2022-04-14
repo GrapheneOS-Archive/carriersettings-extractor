@@ -202,7 +202,8 @@ unwanted_configs = ["carrier_app_wake_signal_config",
                     "show_apn_setting_cdma_bool",
                     "carrier_provisioning_app_string",
                     "hide_enable_2g_bool",
-                    "com.google.android.dialer.display_wifi_calling_button_bool"]
+                    "com.google.android.dialer.display_wifi_calling_button_bool",
+                    "config_ims_rcs_package_override_string"]
 
 unwanted_configs_6thgen = ["smart_forwarding_config_component_name_string"]
 
