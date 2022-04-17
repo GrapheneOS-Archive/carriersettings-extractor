@@ -62,3 +62,35 @@ prebuilt_etc {
     product_specific: true,
     src: ":carrier_extraction-cc",
 }
+
+genrule {
+    name: "carrier_extraction-apn-apv",
+    tools: ["carriersettings_extractor"],
+    cmd: "$(location carriersettings_extractor) vendor/google_devices/$$TARGET_PRODUCT/product/etc/CarrierSettings/ . $(genDir)/apns-conf.xml $(genDir)/carrierconfig-vendor.xml $$TARGET_PRODUCT",
+    out: [
+        "apns-conf.xml",
+    ],
+}
+
+genrule {
+    name: "carrier_extraction-cc-apv",
+    tools: ["carriersettings_extractor"],
+    cmd: "$(location carriersettings_extractor) vendor/google_devices/$$TARGET_PRODUCT/product/etc/CarrierSettings/ . $(genDir)/apns-conf.xml $(genDir)/carrierconfig-vendor.xml $$TARGET_PRODUCT",
+    out: [
+        "carrierconfig-vendor.xml",
+    ],
+}
+
+prebuilt_etc {
+    name: "extracted-apns-apv",
+    filename: "apns-conf.xml",
+    product_specific: true,
+    src: ":carrier_extraction-apn-apv",
+}
+
+prebuilt_etc {
+    name: "extracted-carrierconfig-apv",
+    filename: "carrierconfig-vendor.xml",
+    product_specific: true,
+    src: ":carrier_extraction-cc-apv",
+}
