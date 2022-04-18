@@ -1,3 +1,6 @@
+soong_namespace {
+}
+
 python_binary_host {
     name: "carriersettings_extractor",
     defaults: ["carrier_extractor_defaults"],
@@ -31,10 +34,35 @@ python_library_host {
     },
 }
 
+
+soong_config_module_type {
+    name: "carrier_extractor_genrule_defaults",
+    module_type: "genrule_defaults",
+    config_namespace: "carriers-apv",
+    bool_variables: ["apv"],
+    properties: ["cmd"],
+}
+
+soong_config_bool_variable {
+    name: "apv",
+}
+
+carrier_extractor_genrule_defaults {
+    name: "extractor-defaults",
+    soong_config_variables: {
+        apv: {
+            cmd: "$(location carriersettings_extractor) vendor/google_devices/$$TARGET_PRODUCT/product/etc/CarrierSettings/ . $(genDir)/apns-conf.xml $(genDir)/carrierconfig-vendor.xml $$TARGET_PRODUCT",
+            conditions_default: {
+                cmd: "$(location carriersettings_extractor) vendor/google_devices/$$TARGET_PRODUCT/proprietary/product/etc/CarrierSettings/ . $(genDir)/apns-conf.xml $(genDir)/carrierconfig-vendor.xml $$TARGET_PRODUCT",
+            },
+        },
+    }
+}
+
 genrule {
     name: "carrier_extraction-apn",
     tools: ["carriersettings_extractor"],
-    cmd: "$(location carriersettings_extractor) vendor/google_devices/$$TARGET_PRODUCT/proprietary/product/etc/CarrierSettings/ . $(genDir)/apns-conf.xml $(genDir)/carrierconfig-vendor.xml $$TARGET_PRODUCT",
+    defaults: ["extractor-defaults"],
     out: [
         "apns-conf.xml",
     ],
@@ -43,7 +71,7 @@ genrule {
 genrule {
     name: "carrier_extraction-cc",
     tools: ["carriersettings_extractor"],
-    cmd: "$(location carriersettings_extractor) vendor/google_devices/$$TARGET_PRODUCT/proprietary/product/etc/CarrierSettings/ . $(genDir)/apns-conf.xml $(genDir)/carrierconfig-vendor.xml $$TARGET_PRODUCT",
+    defaults: ["extractor-defaults"],
     out: [
         "carrierconfig-vendor.xml",
     ],
