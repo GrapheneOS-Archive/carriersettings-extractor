@@ -34,7 +34,6 @@ python_library_host {
     },
 }
 
-
 soong_config_module_type {
     name: "carrier_extractor_genrule_defaults",
     module_type: "genrule_defaults",
