@@ -38,6 +38,7 @@ genrule {
     out: [
         "apns-conf.xml",
     ],
+    visibility: ["//visibility:private"]
 }
 
 genrule {
@@ -47,6 +48,7 @@ genrule {
     out: [
         "carrierconfig-vendor.xml",
     ],
+    visibility: ["//visibility:private"]
 }
 
 prebuilt_etc {
@@ -70,6 +72,7 @@ genrule {
     out: [
         "apns-conf.xml",
     ],
+    visibility: ["//visibility:private"]
 }
 
 genrule {
@@ -79,6 +82,7 @@ genrule {
     out: [
         "carrierconfig-vendor.xml",
     ],
+    visibility: ["//visibility:private"]
 }
 
 prebuilt_etc {
