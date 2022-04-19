@@ -33,3 +33,18 @@ PRODUCT_PACKAGES += \
     extracted-carrierconfig \
     extracted-apns
 ```
+
+Add the below to the BoardConfig.mk of a new Pixel device
+
+```
+PRODUCT_SOONG_NAMESPACES += \
+	vendor/carriersettings-extractor
+```
+
+Legacy devices which use APV use a custom soong variable
+
+```
+SOONG_CONFIG_NAMESPACES += carriers-apv
+SOONG_CONFIG_carriers-apv += apv
+SOONG_CONFIG_carriers-apv_apv:= true
+```
