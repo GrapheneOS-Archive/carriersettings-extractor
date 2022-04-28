@@ -42,22 +42,26 @@ for carrier_id_obj in carrier_id_list.carrier_id:
 
 carrier_list = CarrierList()
 all_settings = {}
+carrier_list.ParseFromString(open(os.path.join(pb_path, 'carrier_list.pb'), 'rb').read())
+# Load generic settings first
+multi_settings = MultiCarrierSettings()
+multi_settings.ParseFromString(open(os.path.join(pb_path, 'others.pb'), 'rb').read())
+for setting in multi_settings.setting:
+    all_settings[setting.canonical_name] = setting
+# Load carrier specific files last, to allow overriding generic settings
 for filename in glob(os.path.join(pb_path, '*.pb')):
     with open(filename, 'rb') as pb:
         if os.path.basename(filename) == 'carrier_list.pb':
-            carrier_list.ParseFromString(pb.read())
+            # Handled above already
+            continue
         elif os.path.basename(filename) == 'others.pb':
-            settings = MultiCarrierSettings()
-            settings.ParseFromString(pb.read())
-            for setting in settings.setting:
-                if setting.canonical_name == 'telenor_se':
-                    continue
-                assert setting.canonical_name not in all_settings
-                all_settings[setting.canonical_name] = setting
+            # Handled above already
+            continue
         else:
             setting = CarrierSettings()
             setting.ParseFromString(pb.read())
-            assert setting.canonical_name not in all_settings
+            if setting.canonical_name in all_settings:
+                print("Overriding generic settings for " + setting.canonical_name, file=sys.stderr)
             all_settings[setting.canonical_name] = setting
 
 
