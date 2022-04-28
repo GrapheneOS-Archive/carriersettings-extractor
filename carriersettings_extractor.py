@@ -8,8 +8,8 @@ import sys
 from xml.etree import ElementTree as ET
 from xml.sax.saxutils import escape, quoteattr
 
-from carriersettings_pb2 import CarrierList, CarrierSettings, \
-    MultiCarrierSettings
+from carrier_settings_pb2 import CarrierSettings, MultiCarrierSettings
+from carrier_list_pb2 import CarrierList
 from carrierId_pb2 import CarrierList as CarrierIdList
 
 pb_path = sys.argv[1]
@@ -33,7 +33,7 @@ for carrier_id_obj in carrier_id_list.carrier_id:
             (s.lower() for s in getattr(carrier_attribute, i) or [''])
             for i in [
                 'mccmnc_tuple', 'imsi_prefix_xpattern', 'spn', 'plmn',
-                'gid1', 'gid2', 'preferred_apn', 'iccid_prefix',
+                'gid1', 'preferred_apn', 'iccid_prefix',
                 'privilege_access_rule',
             ]
         )):
@@ -50,15 +50,15 @@ for filename in glob(os.path.join(pb_path, '*.pb')):
             settings = MultiCarrierSettings()
             settings.ParseFromString(pb.read())
             for setting in settings.setting:
-                if setting.canonicalName == 'telenor_se':
+                if setting.canonical_name == 'telenor_se':
                     continue
-                assert setting.canonicalName not in all_settings
-                all_settings[setting.canonicalName] = setting
+                assert setting.canonical_name not in all_settings
+                all_settings[setting.canonical_name] = setting
         else:
             setting = CarrierSettings()
             setting.ParseFromString(pb.read())
-            assert setting.canonicalName not in all_settings
-            all_settings[setting.canonicalName] = setting
+            assert setting.canonical_name not in all_settings
+            all_settings[setting.canonical_name] = setting
 
 
 # Unfortunately, python processors like xml and lxml, as well as command-line
@@ -104,12 +104,11 @@ class ApnElement:
             self.add_attribute(
                 'carrier_id',
                 value=str(carrier_attribute_map[(
-                    self.carrier_id.mccMnc,
+                    self.carrier_id.mcc_mnc,
                     self.carrier_id.imsi,
                     self.carrier_id.spn.lower(),
                     '',
                     self.carrier_id.gid1.lower(),
-                    self.carrier_id.gid2.lower(),
                     '',
                     '',
                     '',
@@ -117,14 +116,14 @@ class ApnElement:
             )
         except KeyError:
             pass
-        self.add_attribute('mcc', value=self.carrier_id.mccMnc[:3])
-        self.add_attribute('mnc', value=self.carrier_id.mccMnc[3:])
+        self.add_attribute('mcc', value=self.carrier_id.mcc_mnc[:3])
+        self.add_attribute('mnc', value=self.carrier_id.mcc_mnc[3:])
         self.add_attribute('apn', 'value')
         self.add_attribute('proxy')
         self.add_attribute('port')
         self.add_attribute('mmsc')
-        self.add_attribute('mmsproxy', 'mmscProxy')
-        self.add_attribute('mmsport', 'mmscProxyPort')
+        self.add_attribute('mmsproxy', 'mmsc_proxy')
+        self.add_attribute('mmsport', 'mmsc_proxy_port')
         self.add_attribute('user')
         self.add_attribute('password')
         self.add_attribute('server')
@@ -139,16 +138,15 @@ class ApnElement:
             ).lower(),
         )
         self.add_attribute('protocol')
-        self.add_attribute('roaming_protocol', 'roamingProtocol')
-        self.add_attribute('carrier_enabled', 'carrierEnabled')
-        self.add_attribute('bearer_bitmask', 'bearerBitmask')
-        self.add_attribute('profile_id', 'profileId')
-        self.add_attribute('modem_cognitive', 'modemCognitive')
-        self.add_attribute('max_conns', 'maxConns')
-        self.add_attribute('wait_time', 'waitTime')
-        self.add_attribute('max_conns_time', 'maxConnsTime')
+        self.add_attribute('roaming_protocol')
+        self.add_attribute('bearer_bitmask')
+        self.add_attribute('profile_id')
+        self.add_attribute('modem_cognitive')
+        self.add_attribute('max_conns')
+        self.add_attribute('wait_time')
+        self.add_attribute('max_conns_time')
         self.add_attribute('mtu')
-        mvno = self.carrier_id.WhichOneof('mvno')
+        mvno = self.carrier_id.WhichOneof('mvno_data')
         if mvno:
             self.add_attribute(
                 'mvno_type',
@@ -158,11 +156,11 @@ class ApnElement:
                 'mvno_match_data',
                 value=getattr(self.carrier_id, mvno),
             )
-        self.add_attribute('apn_set_id', 'apnSetId')
+        self.add_attribute('apn_set_id')
         # No source for integer carrier_id?
-        self.add_attribute('skip_464xlat', 'skip464Xlat')
-        self.add_attribute('user_visible', 'userVisible')
-        self.add_attribute('user_editable', 'userEditable')
+        self.add_attribute('skip_464xlat')
+        self.add_attribute('user_visible')
+        self.add_attribute('user_editable')
 
 
 def indent(elem, level=0):
@@ -221,10 +219,10 @@ with open(apn_out, 'w', encoding='utf-8') as f:
 
     version_suffix = all_settings['default'].version % 1000000000
     for entry in carrier_list.entry:
-        setting = all_settings[entry.canonicalName]
+        setting = all_settings[entry.canonical_name]
         for apn in setting.apns.apn:
             f.write('  <apn carrier={}\n'.format(quoteattr(apn.name)))
-            apn_element = ApnElement(apn, entry.carrierId)
+            apn_element = ApnElement(apn, entry.carrier_id[0])
             for (key, value) in apn_element.attributes.items():
                 f.write('      {}={}\n'.format(escape(key), quoteattr(value)))
             f.write('  />\n\n')
@@ -233,13 +231,13 @@ with open(apn_out, 'w', encoding='utf-8') as f:
             carrier_config_root,
             'carrier_config',
         )
-        carrier_config_element.set('mcc', entry.carrierId.mccMnc[:3])
-        carrier_config_element.set('mnc', entry.carrierId.mccMnc[3:])
-        for field in ['spn', 'imsi', 'gid1', 'gid2']:
-            if entry.carrierId.HasField(field):
+        carrier_config_element.set('mcc', entry.carrier_id[0].mcc_mnc[:3])
+        carrier_config_element.set('mnc', entry.carrier_id[0].mcc_mnc[3:])
+        for field in ['spn', 'imsi', 'gid1']:
+            if entry.carrier_id[0].HasField(field):
                 carrier_config_element.set(
                     field,
-                    getattr(entry.carrierId, field),
+                    getattr(entry.carrier_id[0], field),
                 )
 
         # Add version key composed of canonical name and versions
@@ -249,7 +247,7 @@ with open(apn_out, 'w', encoding='utf-8') as f:
         )
         carrier_config_subelement.set('name', 'carrier_config_version_string')
         carrier_config_subelement.text = '{}-{}.{}'.format(
-            setting.canonicalName,
+            setting.canonical_name,
             setting.version,
             version_suffix
         )
@@ -260,14 +258,14 @@ with open(apn_out, 'w', encoding='utf-8') as f:
             if (config.key in unwanted_configs_6thgen) and (device not in qualcomm_pixels): 
                 continue
             value_type = config.WhichOneof('value')
-            if value_type == 'textValue':
+            if value_type == 'text_value':
                 carrier_config_subelement = ET.SubElement(
                     carrier_config_element,
                     'string',
                 )
                 carrier_config_subelement.set('name', config.key)
                 carrier_config_subelement.text = getattr(config, value_type)
-            elif value_type == 'intValue':
+            elif value_type == 'int_value':
                 carrier_config_subelement = ET.SubElement(
                     carrier_config_element,
                     'int',
@@ -277,7 +275,7 @@ with open(apn_out, 'w', encoding='utf-8') as f:
                     'value',
                     str(getattr(config, value_type)),
                 )
-            elif value_type == 'longValue':
+            elif value_type == 'long_value':
                 carrier_config_subelement = ET.SubElement(
                     carrier_config_element,
                     'long',
@@ -287,7 +285,7 @@ with open(apn_out, 'w', encoding='utf-8') as f:
                     'value',
                     str(getattr(config, value_type)),
                 )
-            elif value_type == 'boolValue':
+            elif value_type == 'bool_value':
                 carrier_config_subelement = ET.SubElement(
                     carrier_config_element,
                     'boolean',
@@ -297,7 +295,7 @@ with open(apn_out, 'w', encoding='utf-8') as f:
                     'value',
                     str(getattr(config, value_type)).lower(),
                 )
-            elif value_type == 'textArray':
+            elif value_type == 'text_array':
                 carrier_config_subelement = ET.SubElement(
                     carrier_config_element,
                     'string-array',
@@ -313,7 +311,7 @@ with open(apn_out, 'w', encoding='utf-8') as f:
                         'item',
                     )
                     carrier_config_item.set('value', value)
-            elif value_type == 'intArray':
+            elif value_type == 'int_array':
                 carrier_config_subelement = ET.SubElement(
                     carrier_config_element,
                     'int-array',
@@ -344,7 +342,7 @@ carrier_config_mccmnc_aggregated = {}
 
 for lone_carrier_config in root_carrier_config_tree:
     # append mnc to mcc to form identifier used to lookup carrier XML in CarrierConfig app
-    if ("gid1" not in lone_carrier_config.attrib) and ("gid2" not in lone_carrier_config.attrib) and ("spn" not in lone_carrier_config.attrib) and ("imsi" not in lone_carrier_config.attrib):
+    if ("gid1" not in lone_carrier_config.attrib) and ("spn" not in lone_carrier_config.attrib) and ("imsi" not in lone_carrier_config.attrib):
         front = True
     else:
         front = False
