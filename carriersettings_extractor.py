@@ -331,6 +331,9 @@ with open(apn_out, 'w', encoding='utf-8') as f:
                         'item',
                     )
                     carrier_config_item.set('value', str(value))
+            elif config.key.endswith('_bundle'):
+                print(config.key + " is a bundle, shit might happen")
+                continue
             else:
                 raise TypeError("Unknown value type: {}".format(value_type))
 
