@@ -357,6 +357,8 @@ with open(apn_out, 'w', encoding='utf-8') as f:
                             'item',
                         )
                         carrier_config_bundle_int_array_item.set('value', str(value)) 
+            elif value_type == 'double':
+                raise TypeError("double support has not been implemented")
             else:
                 raise TypeError("Unknown value type: {}".format(value_type))
 
