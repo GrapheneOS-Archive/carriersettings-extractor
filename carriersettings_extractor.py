@@ -215,6 +215,58 @@ qualcomm_pixels = ["crosshatch","blueline","sargo","bonito","barbet","bramble","
 # "carrier_app_wake_signal_config" is still valid on GrapheneOS but we need to implement code for removing "com.google.android.carriersetup" as we don't ship it
 # "wfc_emergency_address_carrier_app_string" is still valid on GrapheneOS but we need to remove all values which are not "com.android.imsserviceentitlement/.WfcActivationActivity"
 
+
+def gen_config_tree(parent, config):
+    if config.key in unwanted_configs:
+        return
+    if (config.key in unwanted_configs_6thgen) and (device not in qualcomm_pixels):
+        return
+    value_type = config.WhichOneof('value')
+    match value_type:
+        case 'text_value':
+            sub_element = ET.SubElement(parent, 'string')
+            sub_element.set('name', config.key)
+            sub_element.text = getattr(config, value_type)
+        case 'int_value':
+            sub_element = ET.SubElement(parent, 'int')
+            sub_element.set('name', config.key)
+            sub_element.set('value', str(getattr(config, value_type)))
+        case 'long_value':
+            sub_element = ET.SubElement(parent, 'long')
+            sub_element.set('name', config.key)
+            sub_element.set('value', str(getattr(config, value_type)))
+        case 'bool_value':
+            sub_element = ET.SubElement(parent, 'boolean')
+            sub_element.set('name', config.key)
+            sub_element.set('value', str(getattr(config, value_type)).lower())
+        case 'text_array':
+            items = getattr(config, value_type).item
+            sub_element = ET.SubElement(parent, 'string-array')
+            sub_element.set('name', config.key)
+            sub_element.set('num', str(len(items)))
+            for value in items:
+                ET.SubElement(sub_element, 'item').set('value', value)
+        case 'int_array':
+            items = getattr(config, value_type).item
+            sub_element = ET.SubElement(parent, 'int-array')
+            sub_element.set('name', config.key)
+            sub_element.set('num', str(len(items)))
+            for value in items:
+                ET.SubElement(sub_element, 'item').set('value', str(value))
+        case 'bundle':
+            sub_element = ET.SubElement(parent, 'bundle')
+            sub_element.set('name', config.key)
+            configs = getattr(config, value_type).config
+            for sub_config in configs:
+                gen_config_tree(sub_element, sub_config)
+        case 'double':
+            sub_element = ET.SubElement(parent, 'double')
+            sub_element.set('name', config.key)
+            sub_element.set('value', str(getattr(config, value_type)))
+        case _:
+            raise TypeError(f'Unknown Config value type: {value_type}')
+
+
 carrier_config_root = ET.Element('carrier_config_list')
 
 with open(apn_out, 'w', encoding='utf-8') as f:
@@ -257,85 +309,7 @@ with open(apn_out, 'w', encoding='utf-8') as f:
         )
 
         for config in setting.configs.config:
-            if config.key in unwanted_configs:
-                continue
-            if (config.key in unwanted_configs_6thgen) and (device not in qualcomm_pixels): 
-                continue
-            value_type = config.WhichOneof('value')
-            if value_type == 'text_value':
-                carrier_config_subelement = ET.SubElement(
-                    carrier_config_element,
-                    'string',
-                )
-                carrier_config_subelement.set('name', config.key)
-                carrier_config_subelement.text = getattr(config, value_type)
-            elif value_type == 'int_value':
-                carrier_config_subelement = ET.SubElement(
-                    carrier_config_element,
-                    'int',
-                )
-                carrier_config_subelement.set('name', config.key)
-                carrier_config_subelement.set(
-                    'value',
-                    str(getattr(config, value_type)),
-                )
-            elif value_type == 'long_value':
-                carrier_config_subelement = ET.SubElement(
-                    carrier_config_element,
-                    'long',
-                )
-                carrier_config_subelement.set('name', config.key)
-                carrier_config_subelement.set(
-                    'value',
-                    str(getattr(config, value_type)),
-                )
-            elif value_type == 'bool_value':
-                carrier_config_subelement = ET.SubElement(
-                    carrier_config_element,
-                    'boolean',
-                )
-                carrier_config_subelement.set('name', config.key)
-                carrier_config_subelement.set(
-                    'value',
-                    str(getattr(config, value_type)).lower(),
-                )
-            elif value_type == 'text_array':
-                carrier_config_subelement = ET.SubElement(
-                    carrier_config_element,
-                    'string-array',
-                )
-                carrier_config_subelement.set('name', config.key)
-                carrier_config_subelement.set(
-                    'num',
-                    str(len(getattr(config, value_type).item)),
-                )
-                for value in getattr(config, value_type).item:
-                    carrier_config_item = ET.SubElement(
-                        carrier_config_subelement,
-                        'item',
-                    )
-                    carrier_config_item.set('value', value)
-            elif value_type == 'int_array':
-                carrier_config_subelement = ET.SubElement(
-                    carrier_config_element,
-                    'int-array',
-                )
-                carrier_config_subelement.set('name', config.key)
-                carrier_config_subelement.set(
-                    'num',
-                    str(len(getattr(config, value_type).item)),
-                )
-                for value in getattr(config, value_type).item:
-                    carrier_config_item = ET.SubElement(
-                        carrier_config_subelement,
-                        'item',
-                    )
-                    carrier_config_item.set('value', str(value))
-            elif config.key.endswith('_bundle'):
-                print(config.key + " is a bundle, shit might happen")
-                continue
-            else:
-                raise TypeError("Unknown value type: {}".format(value_type))
+            gen_config_tree(carrier_config_element, config)
 
     f.write('</apns>\n')
 
