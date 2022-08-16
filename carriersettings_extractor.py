@@ -335,9 +335,28 @@ with open(apn_out, 'w', encoding='utf-8') as f:
                         'item',
                     )
                     carrier_config_item.set('value', str(value))
-            elif config.key.endswith('_bundle'):
-                print(config.key + " is a bundle, shit might happen")
-                continue
+            elif value_type == 'bundle':
+                carrier_config_bundle_element = ET.SubElement(
+                    carrier_config_element,
+                    'bundle',
+                )
+                carrier_config_bundle_element.set('name', config.key)
+                for bundle_item in getattr(config, value_type).config:
+                    carrier_config_int_array_element = ET.SubElement(
+                        carrier_config_bundle_element,
+                        'int-array',
+                    )
+                    carrier_config_int_array_element.set('name', bundle_item.key)
+                    carrier_config_int_array_element.set(
+                        'num',
+                        str(len(getattr(bundle_item, 'int_array').item)),
+                    )
+                    for value in getattr(bundle_item, 'int_array').item:
+                        carrier_config_bundle_int_array_item = ET.SubElement(
+                            carrier_config_int_array_element,
+                            'item',
+                        )
+                        carrier_config_bundle_int_array_item.set('value', str(value)) 
             else:
                 raise TypeError("Unknown value type: {}".format(value_type))
 
