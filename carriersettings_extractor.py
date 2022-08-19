@@ -254,7 +254,7 @@ def gen_config_tree(parent, config):
             for value in items:
                 ET.SubElement(sub_element, 'item').set('value', str(value))
         case 'bundle':
-            sub_element = ET.SubElement(parent, 'bundle')
+            sub_element = ET.SubElement(parent, 'pbundle_as_map')
             sub_element.set('name', config.key)
             configs = getattr(config, value_type).config
             for sub_config in configs:
