@@ -260,6 +260,7 @@ def gen_config_tree(parent, config):
             for sub_config in configs:
                 gen_config_tree(sub_element, sub_config)
         case 'double':
+            raise TypeError(f'Found Config value type: {value_type}')
             sub_element = ET.SubElement(parent, 'double')
             sub_element.set('name', config.key)
             sub_element.set('value', str(getattr(config, value_type)))
