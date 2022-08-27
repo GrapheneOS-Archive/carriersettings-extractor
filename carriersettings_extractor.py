@@ -282,9 +282,9 @@ with open(apn_out, 'w', encoding='utf-8') as f:
             apn_element = ApnElement(apn, entry.carrier_id[0])
             for (key, value) in apn_element.attributes.items():
                 # Absolutely horrendous fix to stop NumberFormatException
-                value = value.replace('SKIP_464XLAT_DEFAULT','0')
-                value = value.replace('SKIP_464XLAT_DISABLE','1')
-                value = value.replace('SKIP_464XLAT_ENABLE','2')
+                value = value.replace('SKIP_464XLAT_DEFAULT','-1')
+                value = value.replace('SKIP_464XLAT_DISABLE','0')
+                value = value.replace('SKIP_464XLAT_ENABLE','1')
                 f.write('      {}={}\n'.format(escape(key), quoteattr(value)))
             f.write('  />\n\n')
 
