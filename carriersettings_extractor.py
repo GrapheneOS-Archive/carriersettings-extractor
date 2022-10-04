@@ -276,6 +276,8 @@ with open(apn_out, 'w', encoding='utf-8') as f:
 
     version_suffix = all_settings['default'].version % 1000000000
     for entry in carrier_list.entry:
+        if entry.canonical_name == "ice_no" and entry.canonical_name not in all_settings:
+            continue
         setting = all_settings[entry.canonical_name]
         for apn in setting.apns.apn:
             f.write('  <apn carrier={}\n'.format(quoteattr(apn.name)))
