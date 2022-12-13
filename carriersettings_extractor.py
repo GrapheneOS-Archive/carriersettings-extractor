@@ -185,6 +185,7 @@ def indent(elem, level=0):
 
 # Anything where the value is a package name
 unwanted_configs = ["carrier_app_wake_signal_config",
+                    "carrier_default_wfc_ims_enabled_bool",
                     "carrier_settings_activity_component_name_string",
                     "carrier_setup_app_string",
                     "config_ims_package_override_string",
