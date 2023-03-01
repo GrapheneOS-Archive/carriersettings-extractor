@@ -48,3 +48,26 @@ SOONG_CONFIG_NAMESPACES += carriers-apv
 SOONG_CONFIG_carriers-apv += apv
 SOONG_CONFIG_carriers-apv_apv:= true
 ```
+
+## Development
+
+Set up your virtual environment for the project:
+
+```
+$ python3 -m venv venv
+$ source venv/bin/activate
+$ python3 -m pip install pip-tools
+$ pip-sync
+```
+
+To format the Python code:
+
+```
+$ black carriersettings_extractor.py
+```
+
+To lint the Python code:
+
+```
+$ ruff check carriersettings_extractor.py
+```
