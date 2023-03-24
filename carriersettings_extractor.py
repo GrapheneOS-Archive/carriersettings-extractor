@@ -208,7 +208,9 @@ unwanted_configs = ["carrier_app_wake_signal_config",
                     "config_ims_rcs_package_override_string",
                     "editable_enhanced_4g_lte_bool",
                     "hide_enhanced_4g_lte_bool",
-                    "vonr_setting_visibility_bool"]
+                    "vonr_setting_visibility_bool",
+                    "editable_wfc_mode_bool",
+                    "editable_wfc_roaming_mode_bool"]
 
 unwanted_configs_6thgen = ["smart_forwarding_config_component_name_string"]
 
