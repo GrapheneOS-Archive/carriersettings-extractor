@@ -190,7 +190,6 @@ unwanted_configs = ["carrier_app_wake_signal_config",
                     "config_ims_package_override_string",
                     "enable_apps_string_array",
                     "gps.nfw_proxy_apps",
-                    "wfc_emergency_address_carrier_app_string",
                     "ci_action_on_sys_update_bool",
                     "ci_action_on_sys_update_extra_string",
                     "ci_action_on_sys_update_extra_val_string",
@@ -218,7 +217,6 @@ qualcomm_pixels = ["crosshatch","blueline","sargo","bonito","barbet","bramble","
 
 ## TODO:
 # "carrier_app_wake_signal_config" is still valid on GrapheneOS but we need to implement code for removing "com.google.android.carriersetup" as we don't ship it
-# "wfc_emergency_address_carrier_app_string" is still valid on GrapheneOS but we need to remove all values which are not "com.android.imsserviceentitlement/.WfcActivationActivity"
 
 
 def gen_config_tree(parent, config):
@@ -229,6 +227,10 @@ def gen_config_tree(parent, config):
     value_type = config.WhichOneof('value')
     match value_type:
         case 'text_value':
+            # we do not ship proprietary carrier apps, only write values where it uses AOSP ImsServiceEntitlement.
+            # fixes broken wi-fi calling on some carriers for sandboxed Google Play users
+            if (config.key == "wfc_emergency_address_carrier_app_string") and (str(getattr(config, value_type)) != "com.android.imsserviceentitlement/.WfcActivationActivity"):
+                return
             sub_element = ET.SubElement(parent, 'string')
             sub_element.set('name', config.key)
             sub_element.text = getattr(config, value_type)
