@@ -184,8 +184,7 @@ def indent(elem, level=0):
             elem.tail = i
 
 # Anything where the value is a package name
-unwanted_configs = ["carrier_app_wake_signal_config",
-                    "carrier_settings_activity_component_name_string",
+unwanted_configs = ["carrier_settings_activity_component_name_string",
                     "carrier_setup_app_string",
                     "config_ims_package_override_string",
                     "enable_apps_string_array",
@@ -214,10 +213,6 @@ unwanted_configs = ["carrier_app_wake_signal_config",
 unwanted_configs_6thgen = ["smart_forwarding_config_component_name_string"]
 
 qualcomm_pixels = ["crosshatch","blueline","sargo","bonito","barbet","bramble","redfin","sunfish","coral","flame"]
-
-## TODO:
-# "carrier_app_wake_signal_config" is still valid on GrapheneOS but we need to implement code for removing "com.google.android.carriersetup" as we don't ship it
-
 
 def gen_config_tree(parent, config):
     if config.key in unwanted_configs:
@@ -248,6 +243,12 @@ def gen_config_tree(parent, config):
             sub_element.set('value', str(getattr(config, value_type)).lower())
         case 'text_array':
             items = getattr(config, value_type).item
+            # we do not ship "com.google.android.carriersetup", remove it from carrier_app_wake_signal_config
+            if config.key == "carrier_app_wake_signal_config":
+                items = [item for item in items if "com.google.android.carriersetup/" not in str(item)]
+                # if there's only 1 value defined ("com.google.android.carriersetup") in the list, just return so we're not writing an array of 0 values
+                if len(items) == 0:
+                    return
             sub_element = ET.SubElement(parent, 'string-array')
             sub_element.set('name', config.key)
             sub_element.set('num', str(len(items)))
