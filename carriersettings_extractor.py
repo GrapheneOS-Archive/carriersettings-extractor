@@ -227,6 +227,7 @@ unwanted_configs = [
     "vonr_setting_visibility_bool",
     "editable_wfc_mode_bool",
     "editable_wfc_roaming_mode_bool",
+    "carrier_app_required_during_setup_bool",
 ]
 
 unwanted_configs_6thgen = ["smart_forwarding_config_component_name_string"]
