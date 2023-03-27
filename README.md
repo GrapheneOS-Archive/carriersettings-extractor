@@ -9,7 +9,7 @@ open source https://android.googlesource.com/platform/tools/carrier_settings/ pr
 2 XMLs are generated, an APN XML and a CarrierConfig XML, which can be used within the AOSP
 project.
 
-This is a continuation of the https://github.com/daradib/carriersettings-extractor project.
+This is the continuation of the project from the original author [daradib](https://github.com/daradib/).
 
 ## Build
 
