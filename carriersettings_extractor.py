@@ -229,7 +229,7 @@ unwanted_configs = [
     "editable_wfc_roaming_mode_bool",
 ]
 
-unwanted_configs_6thgen = ["smart_forwarding_config_component_name_string"]
+unwanted_configs_tensor = ["smart_forwarding_config_component_name_string"]
 
 qualcomm_pixels = [
     "crosshatch",
@@ -248,7 +248,7 @@ qualcomm_pixels = [
 def gen_config_tree(parent, config):
     if config.key in unwanted_configs:
         return
-    if (config.key in unwanted_configs_6thgen) and (device not in qualcomm_pixels):
+    if (config.key in unwanted_configs_tensor) and (device not in qualcomm_pixels):
         return
     value_type = config.WhichOneof("value")
     match value_type:
