@@ -1,0 +1,26 @@
+name: Check Python code format
+
+on: [pull_request, push]
+
+jobs:
+  check-python-code-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install pip-tools
+          pip-sync
+
+      - name: Format with Black
+        run: black --check carriersettings_extractor.py
+
+      - name: Lint with Ruff
+        run: ruff check carriersettings_extractor.py
