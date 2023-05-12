@@ -37,7 +37,7 @@ python_library_host {
 genrule {
     name: "carrier_extraction-apn",
     tools: ["carriersettings_extractor"],
-    cmd: "$(location carriersettings_extractor) vendor/google_devices/$$TARGET_PRODUCT/proprietary/product/etc/CarrierSettings/ . $(genDir)/apns-conf.xml $(genDir)/carrierconfig-vendor.xml $$TARGET_PRODUCT",
+    cmd: "$(location) --pb_files vendor/google_devices/$$TARGET_PRODUCT/proprietary/product/etc/CarrierSettings/*.pb --apn_out $(out)",
     out: [
         "apns-conf.xml",
     ],
@@ -46,7 +46,7 @@ genrule {
 genrule {
     name: "carrier_extraction-cc",
     tools: ["carriersettings_extractor"],
-    cmd: "$(location carriersettings_extractor) vendor/google_devices/$$TARGET_PRODUCT/proprietary/product/etc/CarrierSettings/ . $(genDir)/apns-conf.xml $(genDir)/carrierconfig-vendor.xml $$TARGET_PRODUCT",
+    cmd: "$(location) --pb_files vendor/google_devices/$$TARGET_PRODUCT/proprietary/product/etc/CarrierSettings/*.pb --cc_out $(out)",
     out: [
         "carrierconfig-vendor.xml",
     ],
