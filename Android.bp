@@ -1,6 +1,19 @@
 soong_namespace {
 }
 
+bootstrap_go_package {
+    name: "soong-carrier_settings",
+    pkgPath: "android/soong/carrier_settings",
+    deps: [
+        "soong-android",
+        "soong-genrule",
+    ],
+    srcs: [
+        "build/carrier_settings.go",
+    ],
+    pluginFor: ["soong_build"],
+}
+
 python_binary_host {
     name: "carriersettings_extractor",
     defaults: ["carrier_extractor_defaults"],
@@ -34,19 +47,24 @@ python_library_host {
     },
 }
 
-genrule {
-    name: "carrier_extraction-apn",
+carrier_settings_genrule_defaults {
+    name: "carrier_settings_defaults",
     tools: ["carriersettings_extractor"],
-    cmd: "$(location carriersettings_extractor) vendor/google_devices/$$TARGET_PRODUCT/proprietary/product/etc/CarrierSettings/ . $(genDir)/apns-conf.xml $(genDir)/carrierconfig-vendor.xml $$TARGET_PRODUCT",
+}
+
+genrule {
+    name: "apns_config",
+    defaults: ["carrier_settings_defaults"],
+    cmd: "$(location) --pb_files $(in) --apn_out $(out)",
     out: [
         "apns-conf.xml",
     ],
 }
 
 genrule {
-    name: "carrier_extraction-cc",
-    tools: ["carriersettings_extractor"],
-    cmd: "$(location carriersettings_extractor) vendor/google_devices/$$TARGET_PRODUCT/proprietary/product/etc/CarrierSettings/ . $(genDir)/apns-conf.xml $(genDir)/carrierconfig-vendor.xml $$TARGET_PRODUCT",
+    name: "carrier_config",
+    defaults: ["carrier_settings_defaults"],
+    cmd: "$(location) --pb_files $(in) --cc_out $(out)",
     out: [
         "carrierconfig-vendor.xml",
     ],
@@ -56,12 +74,12 @@ prebuilt_etc {
     name: "extracted-apns",
     filename: "apns-conf.xml",
     product_specific: true,
-    src: ":carrier_extraction-apn",
+    src: ":apns_config",
 }
 
 prebuilt_etc {
     name: "extracted-carrierconfig",
     filename: "carrierconfig-vendor.xml",
     product_specific: true,
-    src: ":carrier_extraction-cc",
+    src: ":carrier_config",
 }

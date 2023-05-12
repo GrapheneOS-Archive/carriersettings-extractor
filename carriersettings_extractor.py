@@ -1,26 +1,54 @@
 #!/usr/bin/env python3
 
-from collections import OrderedDict
-from glob import glob
-from itertools import product
-import os.path
 import sys
+from argparse import ArgumentParser
+from collections import OrderedDict
+from itertools import product
+from os import devnull, getcwd, getenv
+from pathlib import Path
 from xml.etree import ElementTree as ET
 from xml.sax.saxutils import escape, quoteattr
 
-from carrier_settings_pb2 import CarrierSettings, MultiCarrierSettings
 from carrier_list_pb2 import CarrierList
+from carrier_settings_pb2 import CarrierSettings, MultiCarrierSettings
 from carrierId_pb2 import CarrierList as CarrierIdList
 
-pb_path = sys.argv[1]
+parser = ArgumentParser()
+parser.add_argument(
+    "--pb_files",
+    required=True,
+    nargs="+",
+    help="path to carrier setting protobufs",
+)
+parser.add_argument("--apn_out", default=None, help="path to apn config output")
+parser.add_argument("--cc_out", default=None, help="path to carrier config output")
 
-android_build_top = sys.argv[2]
+args = parser.parse_args()
 
-apn_out = sys.argv[3]
+pb_files = set()
+# carrier_list.pb and others.pb are handled separately.
+carrier_list_pb_path = None
+others_pb_path = None
+for pb_file in args.pb_files:
+    pb_path = Path(pb_file).resolve()
+    if pb_path.name == "carrier_list.pb":
+        carrier_list_pb_path = pb_path
+    elif pb_path.name == "others.pb":
+        others_pb_path = pb_path
+    else:
+        pb_files.add(pb_path)
 
-cc_out = sys.argv[4]
+apn_out = args.apn_out
+cc_out = args.cc_out
+if apn_out is None and cc_out is None:
+    parser.error("at least one of --apn_out or --cc_out is required")
+apn_out = apn_out or devnull
+cc_out = cc_out or devnull
 
-device = sys.argv[5]
+android_build_top = getenv("ANDROID_BUILD_TOP", getcwd())
+device = getenv("TARGET_PRODUCT")
+if device is None:
+    raise RuntimeError("TARGET_PRODUCT environment variable must be set")
 
 android_path_to_carrierid = (
     "packages/providers/TelephonyProvider/assets/latest_carrier_id"
@@ -28,7 +56,7 @@ android_path_to_carrierid = (
 carrier_id_list = CarrierIdList()
 carrier_attribute_map = {}
 with open(
-    os.path.join(android_build_top, android_path_to_carrierid, "carrier_list.pb"), "rb"
+    Path(android_build_top, android_path_to_carrierid, "carrier_list.pb"), "rb"
 ) as pb:
     carrier_id_list.ParseFromString(pb.read())
 for carrier_id_obj in carrier_id_list.carrier_id:
@@ -52,32 +80,23 @@ for carrier_id_obj in carrier_id_list.carrier_id:
 
 carrier_list = CarrierList()
 all_settings = {}
-carrier_list.ParseFromString(
-    open(os.path.join(pb_path, "carrier_list.pb"), "rb").read()
-)
+carrier_list.ParseFromString(open(carrier_list_pb_path, "rb").read())
 # Load generic settings first
 multi_settings = MultiCarrierSettings()
-multi_settings.ParseFromString(open(os.path.join(pb_path, "others.pb"), "rb").read())
+multi_settings.ParseFromString(open(others_pb_path, "rb").read())
 for setting in multi_settings.setting:
     all_settings[setting.canonical_name] = setting
 # Load carrier specific files last, to allow overriding generic settings
-for filename in glob(os.path.join(pb_path, "*.pb")):
-    with open(filename, "rb") as pb:
-        if os.path.basename(filename) == "carrier_list.pb":
-            # Handled above already
-            continue
-        elif os.path.basename(filename) == "others.pb":
-            # Handled above already
-            continue
-        else:
-            setting = CarrierSettings()
-            setting.ParseFromString(pb.read())
-            if setting.canonical_name in all_settings:
-                print(
-                    "Overriding generic settings for " + setting.canonical_name,
-                    file=sys.stderr,
-                )
-            all_settings[setting.canonical_name] = setting
+for filepath in pb_files:
+    with open(filepath, "rb") as pb:
+        setting = CarrierSettings()
+        setting.ParseFromString(pb.read())
+        if setting.canonical_name in all_settings:
+            print(
+                "Overriding generic settings for " + setting.canonical_name,
+                file=sys.stderr,
+            )
+        all_settings[setting.canonical_name] = setting
 
 
 # Unfortunately, python processors like xml and lxml, as well as command-line
